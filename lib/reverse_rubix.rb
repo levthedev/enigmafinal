@@ -8,9 +8,11 @@ class Decrypt
 
   CHARACTER_MAP = ("a".."z").to_a + ("0".."9").to_a + [" ", ".", ","]
 
-  def initialize
-    key = FinalKey.new
-#    @final_key ||= key.combine_keys
+  def initialize(key)
+    @poop = key.chars.each_cons(2).map(&:join).map(&:to_i)
+    @day = DayKey.new
+    @dayvalues = @day.today.to_s.chars.map(&:to_i)
+    @final_key = @poop.zip(@dayvalues).map{|element| element.reduce(:+)}
     @decrypted = []
   end
 
@@ -22,8 +24,7 @@ class Decrypt
     (CHARACTER_MAP.index(letter).to_i - @final_key[index].to_i) % 39
   end
 
-  def decrypt(message, final_key)
-    @final_key = final_key
+  def decrypt(message)
     slice_message(message).each do |sub_array|
       sub_array.each_with_index do |letter, index|
         @decrypted << CHARACTER_MAP[new_index(letter, index)]
